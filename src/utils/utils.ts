@@ -45,9 +45,23 @@ export function ensureElement<T extends HTMLElement>(selectorElement: SelectorEl
 }
 
 export function cloneTemplate<T extends HTMLElement>(query: string | HTMLTemplateElement): T {
-    const template = ensureElement(query) as HTMLTemplateElement;
-    return template.content.firstElementChild.cloneNode(true) as T;
+  let template: HTMLTemplateElement;
+
+  if (typeof query === 'string') {
+    template = ensureElement<HTMLTemplateElement>(query);
+  } else {
+    template = query;
+  }
+
+  const firstChild = template.content.firstElementChild as HTMLElement | null;
+  if (!firstChild) {
+    const id = typeof query === 'string' ? query : (query as HTMLTemplateElement).id || '[template element]';
+    throw new Error(`Шаблон "${id}" не содержит элементов: template.content.firstElementChild === null`);
+  }
+
+  return firstChild.cloneNode(true) as T;
 }
+
 
 export function bem(block: string, element?: string, modifier?: string): { name: string, class: string } {
     let name = block;

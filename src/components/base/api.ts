@@ -1,10 +1,14 @@
+//ApiListResponse<Type> задаёт структуру ответа со списком элементов (общее количество + массив)
 export type ApiListResponse<Type> = {
     total: number,
     items: Type[]
 };
 
+//ApiPostMethods ограничивает допустимые HTTP‑методы для модификации данных (POST, PUT, DELETE)
 export type ApiPostMethods = 'POST' | 'PUT' | 'DELETE';
 
+
+// класс Api реализует базовую логику HTTP‑запросов (get, post) и обработки ответов
 export class Api {
     readonly baseUrl: string;
     protected options: RequestInit;
