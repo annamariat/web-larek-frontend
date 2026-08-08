@@ -18,7 +18,8 @@ const config = {
   entry: "./src/index.ts",
   devtool: "source-map",
   output: {
-    path: path.resolve(__dirname, "dist"),
+   path: path.resolve(__dirname, "dist"),
+  assetModuleFilename: "assets/images/[name].[hash][ext]", // важно: будет папка assets/images
   },
   devServer: {
     open: true,
