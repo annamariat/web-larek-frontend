@@ -1,5 +1,3 @@
-// Generated using webpack-cli https://github.com/webpack/webpack-cli
-
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
@@ -10,16 +8,19 @@ require('dotenv').config({
   path: path.join(process.cwd(), process.env.NODE_ENV ? `.env.${process.env.NODE_ENV}` : '.env')
 });
 
-const isProduction = process.env.NODE_ENV == "production";
+const isProduction = process.env.NODE_ENV === "production";
+const repoName = "/web-larek-frontend/"; // имя твоего репозитория на GitHub
 
 const stylesHandler = MiniCssExtractPlugin.loader;
 
 const config = {
   entry: "./src/index.ts",
-  devtool: "source-map",
+  devtool: isProduction ? false : "source-map", // в продакшене source-map лучше отключать ради размера
   output: {
-   path: path.resolve(__dirname, "dist"),
-  assetModuleFilename: "assets/images/[name].[hash][ext]", // важно: будет папка assets/images
+    path: path.resolve(__dirname, "dist"),
+    assetModuleFilename: "assets/images/[name].[hash][ext]",
+    publicPath: isProduction ? repoName : "/", // для GitHub Pages
+    clean: true, // <-- ВАЖНО: каждый раз чистит dist перед сборкой
   },
   devServer: {
     open: true,
@@ -29,13 +30,12 @@ const config = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: "src/pages/index.html"
+      template: "src/pages/index.html",
+      filename: "index.html",
     }),
-
-    new MiniCssExtractPlugin(),
-
-    // Add your plugins here
-    // Learn more about plugins from https://webpack.js.org/configuration/plugins/
+    new MiniCssExtractPlugin({
+      filename: "[name].[contenthash].css" // добавляем хэш, чтобы браузер не кэшировал старые CSS
+    }),
     new DefinePlugin({
       'process.env.DEVELOPMENT': !isProduction,
       'process.env.API_ORIGIN': JSON.stringify(process.env.API_ORIGIN ?? '')
@@ -46,7 +46,7 @@ const config = {
       {
         test: /\.(ts|tsx)$/i,
         use: ["babel-loader", "ts-loader"],
-        exclude: ["/node_modules/"],
+        exclude: [/node_modules/]
       },
       {
         test: /\.s[ac]ss$/i,
@@ -68,13 +68,10 @@ const config = {
         test: /\.(eot|svg|ttf|woff|woff2|png|jpg|gif)$/i,
         type: "asset",
       },
-
-      // Add your rules for custom modules here
-      // Learn more about loaders from https://webpack.js.org/loaders/
     ],
   },
   resolve: {
-    extensions: [".tsx", ".ts", ".jsx", ".js", "..."],
+    extensions: [".tsx", ".ts", ".jsx", ".js"],
   },
   optimization: {
     minimize: true,
